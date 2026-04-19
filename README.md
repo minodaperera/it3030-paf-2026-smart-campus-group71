@@ -1,2 +1,13 @@
-# it3030-paf-2026-smart-campus-group71
-IT3030 PAF Project - Smart Campus System (Spring Boot + React + PostgreSQL)
+
+# Smart Campus System
+
+## Tech Stack
+- Backend: Spring Boot
+- Frontend: React
+- Database: PostgreSQL
+
+## Team Members
+- Member 1 – Facilities & Resources
+- Member 2 – Booking Management
+- Member 3 – Incident Tickets
+- Member 4 – Auth & Notifications
