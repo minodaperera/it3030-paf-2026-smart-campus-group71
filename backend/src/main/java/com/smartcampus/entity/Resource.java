@@ -1,6 +1,8 @@
 package com.smartcampus.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,10 +13,13 @@ public class Resource {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Name is required")
     private String name;
 
+    @NotBlank(message = "Type is required")
     private String type;
 
+    @Min(value = 1, message = "Capacity must be at least 1")
     private Integer capacity;
 
     private String location;
