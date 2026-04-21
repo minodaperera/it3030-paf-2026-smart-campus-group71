@@ -13,17 +13,39 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(nullable = false)
     private String resourceName;
+    
+    @Column(nullable = false)
     private String category;
+    
+    @Column(nullable = false, length = 1000)
     private String description;
+    
+    @Column(nullable = false)
     private String priority;
+    
     private String preferredContact;
+    
+    @Column(nullable = false)
     private String status;
+    
     private String rejectionReason;
+    
     private String assignedTechnician;
+    
+    @Column(length = 1000)
     private String resolutionNotes;
+    
+    @Column(nullable = false)
     private Long userId;
+    
+    @Column(nullable = false)
+    private Long reporterId;
+    
+    @Column(nullable = false)
     private LocalDateTime createdAt;
+    
     private LocalDateTime updatedAt;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -52,6 +74,7 @@ public class Ticket {
     public String getAssignedTechnician() { return assignedTechnician; }
     public String getResolutionNotes() { return resolutionNotes; }
     public Long getUserId() { return userId; }
+    public Long getReporterId() { return reporterId; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public List<ImageAttachment> getAttachments() { return attachments; }
@@ -69,6 +92,7 @@ public class Ticket {
     public void setAssignedTechnician(String assignedTechnician) { this.assignedTechnician = assignedTechnician; }
     public void setResolutionNotes(String resolutionNotes) { this.resolutionNotes = resolutionNotes; }
     public void setUserId(Long userId) { this.userId = userId; }
+    public void setReporterId(Long reporterId) { this.reporterId = reporterId; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public void setAttachments(List<ImageAttachment> attachments) { this.attachments = attachments; }

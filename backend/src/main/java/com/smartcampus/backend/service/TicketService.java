@@ -49,6 +49,8 @@ public class TicketService {
         ticket.setAttachments(attachments);
         ticket.setCreatedAt(LocalDateTime.now());
         ticket.setUpdatedAt(LocalDateTime.now());
+        ticket.setReporterId(ticket.getUserId());
+        
         return ticketRepository.save(ticket);
     }
     
