@@ -4,7 +4,7 @@
     
 // }
 
-package com.smartcampus.booking;
+package backend.src.main.java.smartcampus;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -4,7 +4,7 @@
     
 // }
 
-package com.smartcampus.booking.controller;
+package backend.src.main.java.smartcampus.controller;
 
 import com.smartcampus.booking.model.Booking;
 import com.smartcampus.booking.service.BookingService;

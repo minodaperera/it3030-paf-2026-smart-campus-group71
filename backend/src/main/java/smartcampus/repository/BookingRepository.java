@@ -4,7 +4,7 @@
     
 // }
 
-package com.smartcampus.booking.repository;
+package backend.src.main.java.smartcampus.repository;
 
 import com.smartcampus.booking.model.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
