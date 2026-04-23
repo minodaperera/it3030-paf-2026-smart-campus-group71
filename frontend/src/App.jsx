@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import NotificationPanel from './components/NotificationPanel';
+import ExportButtons from './components/ExportButtons';
 
 function App() {
   const [activeTab, setActiveTab] = useState('tickets')
@@ -182,6 +183,7 @@ function Dashboard() {
 }
 
 // ==================== TICKET LIST COMPONENT ====================
+// Ticket List Component with Filtering, Search, and Export
 function TicketList() {
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
@@ -226,7 +228,10 @@ function TicketList() {
 
   return (
     <div className="ticket-list">
-      <h2>My Tickets</h2>
+      <div className="list-header">
+        <h2>My Tickets</h2>
+        <ExportButtons tickets={tickets} />
+      </div>
       
       <div className="filter-bar">
         <input

@@ -782,4 +782,83 @@
   cursor: not-allowed;
 }
 
+/* Export Buttons Styles */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.list-header h2 {
+  margin: 0;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.export-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.export-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.excel-btn {
+  background: #217346;
+  color: white;
+}
+
+.excel-btn:hover:not(:disabled) {
+  background: #185a3a;
+  transform: translateY(-2px);
+}
+
+.pdf-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.pdf-btn:hover:not(:disabled) {
+  background: #b02a37;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .export-buttons {
+    width: 100%;
+  }
+  
+  .export-btn {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .filter-bar {
+    flex-direction: column;
+  }
+  
+  .search-input, .filter-select, .clear-btn {
+    width: 100%;
+  }
+}
+
 }
