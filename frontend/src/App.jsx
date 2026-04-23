@@ -1,13 +1,37 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import NotificationPanel from './components/NotificationPanel';
-import ExportButtons from './components/ExportButtons';
+import { ToastContainer } from './components/Toast';
 
 function App() {
   const [activeTab, setActiveTab] = useState('tickets')
+  const [ticketCount, setTicketCount] = useState(0)
+  const [toasts, setToasts] = useState([])
+
+  const addToast = (message, type) => {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, message, type }])
+    setTimeout(() => {
+      setToasts(prev => prev.filter(toast => toast.id !== id))
+    }, 3000)
+  }
+
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id))
+  }
+
+  useEffect(() => {
+    fetch('http://localhost:8081/api/tickets', {
+      headers: { 'X-User-Id': '1', 'X-User-Role': 'USER' }
+    })
+      .then(res => res.json())
+      .then(data => setTicketCount(data.length))
+      .catch(err => console.error('Error fetching count:', err))
+  }, [])
 
   return (
     <div className="app">
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
       <header className="app-header">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
           <div>
@@ -19,14 +43,16 @@ function App() {
       </header>
       
       <div className="tabs">
-        <button onClick={() => setActiveTab('tickets')}>My Tickets</button>
+        <button onClick={() => setActiveTab('tickets')}>
+          My Tickets {ticketCount > 0 && <span className="tab-badge">{ticketCount}</span>}
+        </button>
         <button onClick={() => setActiveTab('create')}>Create Ticket</button>
         <button onClick={() => setActiveTab('dashboard')}>Dashboard</button>
       </div>
 
       <div className="content">
-        {activeTab === 'tickets' && <TicketList />}
-        {activeTab === 'create' && <TicketForm />}
+        {activeTab === 'tickets' && <TicketList addToast={addToast} />}
+        {activeTab === 'create' && <TicketForm addToast={addToast} />}
         {activeTab === 'dashboard' && <Dashboard />}
       </div>
     </div>
@@ -49,7 +75,6 @@ function Dashboard() {
   })
   const [loading, setLoading] = useState(true)
 
-  // Fetch function defined inside useEffect
   useEffect(() => {
     async function fetchDashboardStats() {
       try {
@@ -183,15 +208,16 @@ function Dashboard() {
 }
 
 // ==================== TICKET LIST COMPONENT ====================
-// Ticket List Component with Filtering, Search, and Export
-function TicketList() {
+function TicketList({ addToast }) {
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState('ALL')
   const [filterPriority, setFilterPriority] = useState('ALL')
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortOrder, setSortOrder] = useState('desc')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(5)
 
-  // Fetch function defined inside useEffect
   useEffect(() => {
     function fetchTickets() {
       setLoading(true)
@@ -212,7 +238,16 @@ function TicketList() {
               ticket.category?.toLowerCase().includes(searchTerm.toLowerCase())
             )
           }
+          
+          // Sort by date
+          if (sortOrder === 'desc') {
+            filteredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          } else {
+            filteredData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+          }
+          
           setTickets(filteredData)
+          setCurrentPage(1)
           setLoading(false)
         })
         .catch(err => {
@@ -222,7 +257,13 @@ function TicketList() {
     }
     
     fetchTickets()
-  }, [filterStatus, filterPriority, searchTerm])
+  }, [filterStatus, filterPriority, searchTerm, sortOrder])
+
+  // Pagination calculations
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentTickets = tickets.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(tickets.length / itemsPerPage)
 
   if (loading) return <div>Loading tickets...</div>
 
@@ -230,7 +271,7 @@ function TicketList() {
     <div className="ticket-list">
       <div className="list-header">
         <h2>My Tickets</h2>
-        <ExportButtons tickets={tickets} />
+        <ExportButtons tickets={tickets} addToast={addToast} />
       </div>
       
       <div className="filter-bar">
@@ -266,10 +307,18 @@ function TicketList() {
         </select>
         
         <button 
+          onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
+          className="sort-btn"
+        >
+          {sortOrder === 'desc' ? '📅 Newest First' : '📅 Oldest First'}
+        </button>
+        
+        <button 
           onClick={() => {
             setFilterStatus('ALL')
             setFilterPriority('ALL')
             setSearchTerm('')
+            setSortOrder('desc')
           }}
           className="clear-btn"
         >
@@ -279,37 +328,58 @@ function TicketList() {
       
       <p className="results-count">Found {tickets.length} ticket(s)</p>
       
-      {tickets.length === 0 ? (
+      {currentTickets.length === 0 ? (
         <p className="no-tickets">No tickets found. Create your first ticket!</p>
       ) : (
-        tickets.map(ticket => (
-          <div key={ticket.id} className="ticket-card">
-            <div className="ticket-header">
-              <h3>{ticket.resourceName}</h3>
-              <span className={`priority-badge priority-${ticket.priority?.toLowerCase()}`}>
-                {ticket.priority}
-              </span>
-              <span className={`status-badge status-${ticket.status?.toLowerCase()}`}>
-                {ticket.status}
-              </span>
+        <>
+          {currentTickets.map(ticket => (
+            <div key={ticket.id} className="ticket-card">
+              <div className="ticket-header">
+                <h3>{ticket.resourceName}</h3>
+                <span className={`priority-badge priority-${ticket.priority?.toLowerCase()}`}>
+                  {ticket.priority}
+                </span>
+                <span className={`status-badge status-${ticket.status?.toLowerCase()}`}>
+                  {ticket.status}
+                </span>
+              </div>
+              <p><strong>Category:</strong> {ticket.category}</p>
+              <p><strong>Description:</strong> {ticket.description}</p>
+              {ticket.preferredContact && (
+                <p><strong>Contact:</strong> {ticket.preferredContact}</p>
+              )}
+              {ticket.createdAt && (
+                <p><strong>Created:</strong> {new Date(ticket.createdAt).toLocaleString()}</p>
+              )}
             </div>
-            <p><strong>Category:</strong> {ticket.category}</p>
-            <p><strong>Description:</strong> {ticket.description}</p>
-            {ticket.preferredContact && (
-              <p><strong>Contact:</strong> {ticket.preferredContact}</p>
-            )}
-            {ticket.createdAt && (
-              <p><strong>Created:</strong> {new Date(ticket.createdAt).toLocaleString()}</p>
-            )}
-          </div>
-        ))
+          ))}
+          
+          {/* Pagination */}
+          {tickets.length > itemsPerPage && (
+            <div className="pagination">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                ← Previous
+              </button>
+              <span>Page {currentPage} of {totalPages}</span>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
 }
 
 // ==================== TICKET FORM COMPONENT ====================
-function TicketForm() {
+function TicketForm({ addToast }) {
   const [formData, setFormData] = useState({
     resourceName: '',
     category: '',
@@ -329,16 +399,18 @@ function TicketForm() {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files)
     if (images.length + files.length > 3) {
-      alert('Maximum 3 images allowed')
+      addToast('Maximum 3 images allowed', 'error')
       return
     }
     setImages([...images, ...files])
   }
 
   const removeImage = (index) => {
-    const newImages = [...images]
-    newImages.splice(index, 1)
-    setImages(newImages)
+    if (window.confirm('Are you sure you want to remove this image?')) {
+      const newImages = [...images]
+      newImages.splice(index, 1)
+      setImages(newImages)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -379,8 +451,8 @@ function TicketForm() {
       setUploadProgress(100)
       
       if (response.ok) {
+        addToast('Ticket created successfully!', 'success')
         setTimeout(() => {
-          alert('Ticket created successfully!')
           setFormData({
             resourceName: '',
             category: '',
@@ -394,13 +466,13 @@ function TicketForm() {
         }, 500)
       } else {
         const error = await response.text()
-        alert('Failed to create ticket: ' + error)
+        addToast('Failed to create ticket: ' + error, 'error')
         setUploadProgress(0)
         setUploading(false)
       }
     } catch (error) {
       console.error('Error:', error)
-      alert('Error creating ticket')
+      addToast('Error creating ticket', 'error')
       setUploadProgress(0)
       setUploading(false)
     }
@@ -444,13 +516,19 @@ function TicketForm() {
         </div>
 
         <div>
-          <label>Description:</label>
+          <label>Description ({formData.description.length}/1000):</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             required
+            maxLength="1000"
           />
+          {formData.description.length > 800 && (
+            <small className={formData.description.length > 900 ? 'warning' : 'info'}>
+              {1000 - formData.description.length} characters remaining
+            </small>
+          )}
         </div>
 
         <div>
@@ -498,6 +576,99 @@ function TicketForm() {
           {submitting ? 'Creating...' : 'Create Ticket'}
         </button>
       </form>
+    </div>
+  )
+}
+
+// ==================== EXPORT BUTTONS COMPONENT ====================
+function ExportButtons({ tickets, addToast }) {
+  const [exporting, setExporting] = useState(false)
+
+  const exportToExcel = () => {
+    setExporting(true)
+    try {
+      import('xlsx').then(XLSX => {
+        const exportData = tickets.map(ticket => ({
+          'ID': ticket.id,
+          'Resource Name': ticket.resourceName,
+          'Category': ticket.category,
+          'Description': ticket.description,
+          'Priority': ticket.priority,
+          'Status': ticket.status,
+          'Preferred Contact': ticket.preferredContact || 'N/A',
+          'Created At': new Date(ticket.createdAt).toLocaleString(),
+          'Assigned Technician': ticket.assignedTechnician || 'Not Assigned'
+        }))
+
+        const ws = XLSX.utils.json_to_sheet(exportData)
+        const wb = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(wb, ws, 'Tickets Report')
+        XLSX.writeFile(wb, `tickets_report_${new Date().toISOString().slice(0, 19)}.xlsx`)
+        addToast('Excel report downloaded successfully!', 'success')
+      })
+    } catch (error) {
+      console.error('Error exporting to Excel:', error)
+      addToast('Error exporting to Excel', 'error')
+    }
+    setExporting(false)
+  }
+
+  const exportToPDF = () => {
+    setExporting(true)
+    try {
+      import('jspdf').then(({ default: jsPDF }) => {
+        import('jspdf-autotable').then(() => {
+          const doc = new jsPDF('landscape')
+          doc.setFontSize(18)
+          doc.text('Tickets Report', 14, 15)
+          doc.setFontSize(10)
+          doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 25)
+          doc.text(`Total Tickets: ${tickets.length}`, 14, 32)
+          
+          const tableData = tickets.map(ticket => [
+            ticket.id || 'N/A',
+            ticket.resourceName || 'N/A',
+            ticket.category || 'N/A',
+            ticket.priority || 'N/A',
+            ticket.status || 'N/A',
+            new Date(ticket.createdAt).toLocaleDateString()
+          ])
+
+          doc.autoTable({
+            startY: 40,
+            head: [['ID', 'Resource', 'Category', 'Priority', 'Status', 'Created']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: { fillColor: [33, 150, 243], textColor: 255 }
+          })
+          
+          doc.save(`tickets_report_${new Date().toISOString().slice(0, 19)}.pdf`)
+          addToast('PDF report downloaded successfully!', 'success')
+        })
+      })
+    } catch (error) {
+      console.error('Error exporting to PDF:', error)
+      addToast('Error exporting to PDF', 'error')
+    }
+    setExporting(false)
+  }
+
+  return (
+    <div className="export-buttons">
+      <button 
+        onClick={exportToExcel} 
+        disabled={exporting || tickets.length === 0}
+        className="export-btn excel-btn"
+      >
+        📊 Export to Excel
+      </button>
+      <button 
+        onClick={exportToPDF} 
+        disabled={exporting || tickets.length === 0}
+        className="export-btn pdf-btn"
+      >
+        📄 Export to PDF
+      </button>
     </div>
   )
 }
