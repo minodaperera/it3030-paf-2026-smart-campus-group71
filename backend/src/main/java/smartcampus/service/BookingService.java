@@ -12,17 +12,17 @@ public class BookingService {
     @Autowired
     private BookingRepository bookingRepository;
 
-    // අලුත් Booking එකක් Save කිරීම
+     
     public Booking createBooking(Booking booking) {
         return bookingRepository.save(booking);
     }
 
-    // ඔක්කොම Bookings ලබා ගැනීම
+     
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
     }
 
-    // යම්කිසි User කෙනෙකුගේ Bookings විතරක් ලබා ගැනීම
+     
     public List<Booking> getBookingsByUser(Long userId) {
         return bookingRepository.findByUserId(userId);
     }

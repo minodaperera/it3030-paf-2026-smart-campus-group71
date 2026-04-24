@@ -1,8 +1,3 @@
-// package backend.repository;
-
-// public class BookingRepository {
-    
-// }
 
 package smartcampus.repository;
 
