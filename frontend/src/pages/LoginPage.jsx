@@ -1,121 +1,49 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { GoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../services/api';
 
 const LoginPage = () => {
-    const [formData, setFormData] = useState({
-        username: '',
-        password: ''
-    });
-    const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleGoogleSuccess = async (credentialResponse) => {
         try {
-            const res = await loginUser(formData);
+            const res = await axios.post('http://localhost:8080/api/auth/google', {
+                token: credentialResponse.credential
+            });
+
             localStorage.setItem('token', res.data.token);
-            navigate('/dashboard');
-        } catch (err) {
-            setError('Invalid username or password!');
+            localStorage.setItem('role', res.data.role);
+            localStorage.setItem('email', res.data.email);
+
+             
+            if (res.data.role === 'ADMIN') {
+                navigate('/admin-dashboard');
+            } else {
+                navigate('/user-dashboard');
+            }
+            
+        } catch (error) {
+            console.error('Authentication Failed', error);
+            alert('Login Failed! Please check your backend connection.');
         }
     };
 
     return (
-        <div style={styles.container}>
-            <div style={styles.card}>
-                <h2 style={styles.title}>Smart Campus Login</h2>
-
-                {error && <p style={styles.error}>{error}</p>}
-
-                <form onSubmit={handleSubmit}>
-                    <div style={styles.inputGroup}>
-                        <label>Username</label>
-                        <input
-                            type="text"
-                            name="username"
-                            value={formData.username}
-                            onChange={handleChange}
-                            style={styles.input}
-                            placeholder="Enter username"
-                            required
-                        />
-                    </div>
-
-                    <div style={styles.inputGroup}>
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            style={styles.input}
-                            placeholder="Enter password"
-                            required
-                        />
-                    </div>
-
-                    <button type="submit" style={styles.button}>
-                        Login
-                    </button>
-                </form>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+            <div className="p-8 bg-white rounded-lg shadow-md text-center border border-gray-200">
+                <h2 className="text-2xl font-bold mb-2 text-gray-800">Smart Campus Booking</h2>
+                <p className="text-gray-600 mb-8">Please sign in with your Google account</p>
+                
+                <div className="flex justify-center">
+                    <GoogleLogin 
+                        onSuccess={handleGoogleSuccess} 
+                        onError={() => console.log('Login Failed')} 
+                    />
+                </div>
             </div>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        backgroundColor: '#f0f2f5'
-    },
-    card: {
-        backgroundColor: 'white',
-        padding: '40px',
-        borderRadius: '10px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        width: '380px'
-    },
-    title: {
-        textAlign: 'center',
-        marginBottom: '24px',
-        color: '#1a1a2e'
-    },
-    inputGroup: {
-        marginBottom: '16px'
-    },
-    input: {
-        width: '100%',
-        padding: '10px',
-        marginTop: '6px',
-        borderRadius: '6px',
-        border: '1px solid #ccc',
-        fontSize: '14px',
-        boxSizing: 'border-box'
-    },
-    button: {
-        width: '100%',
-        padding: '12px',
-        backgroundColor: '#4f46e5',
-        color: 'white',
-        border: 'none',
-        borderRadius: '6px',
-        fontSize: '16px',
-        cursor: 'pointer',
-        marginTop: '10px'
-    },
-    error: {
-        color: 'red',
-        textAlign: 'center',
-        marginBottom: '12px'
-    }
 };
 
 export default LoginPage;
