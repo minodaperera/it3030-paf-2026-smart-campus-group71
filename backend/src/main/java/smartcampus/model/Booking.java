@@ -2,11 +2,12 @@ package smartcampus.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings")
-@Data  
+@Data 
 public class Booking {
 
     @Id
@@ -19,17 +20,25 @@ public class Booking {
     @Column(name = "resource_id", nullable = false)
     private Long resourceId;
 
+    @Column(name = "booking_date", nullable = false)
+    private LocalDate bookingDate;  
+
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
+    private Integer attendees = 1;  
+
     @Column(nullable = false)
-    private String status; // e.g., PENDING, APPROVED, REJECTED
+    private String status = "PENDING";  
 
     private String purpose;
 
-    @Column(name = "created_at")
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
+
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

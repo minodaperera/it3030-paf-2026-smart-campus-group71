@@ -1,6 +1,7 @@
 package smartcampus.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import smartcampus.model.Booking;
 import smartcampus.repository.BookingRepository;
@@ -13,7 +14,7 @@ public class BookingService {
     private BookingRepository bookingRepository;
 
      
-    public Booking createBooking(Booking booking) {
+    public Booking createBooking(@NonNull Booking booking) {
         return bookingRepository.save(booking);
     }
 

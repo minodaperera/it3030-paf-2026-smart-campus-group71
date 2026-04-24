@@ -1,6 +1,7 @@
 package smartcampus.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 import smartcampus.model.Booking;
 import smartcampus.service.BookingService;
@@ -16,7 +17,7 @@ public class BookingController {
 
      
     @PostMapping
-    public Booking createBooking(@RequestBody Booking booking) {
+    public Booking createBooking(@RequestBody @NonNull Booking booking) {
         return bookingService.createBooking(booking);
     }
 
