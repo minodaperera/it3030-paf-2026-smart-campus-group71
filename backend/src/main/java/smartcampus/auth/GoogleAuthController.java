@@ -1,4 +1,4 @@
-package backend.src.main.java.smartcampus.auth;
+package smartcampus.auth;
 
 public class GoogleAuthController {
     

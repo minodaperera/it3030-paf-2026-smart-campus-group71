@@ -1,4 +1,4 @@
-package backend.src.main.java.smartcampus.model;
+package smartcampus.model;
 
 public class BookingStatus {
     

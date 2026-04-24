@@ -1,10 +1,5 @@
-// package backend;
 
-// public class BookingApplication {
-    
-// }
-
-package backend.src.main.java.smartcampus;
+package smartcampus;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
