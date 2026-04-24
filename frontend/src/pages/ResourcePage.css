@@ -1,0 +1,228 @@
+/* ResourcePage.css - Aligned with Global Design System */
+
+.resource-header {
+  margin-bottom: 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-icon {
+  background: var(--bg-dark);
+  color: white;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.3);
+}
+
+.resource-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #0f172a 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.resource-header p {
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.stats-badge {
+  background: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--shadow-md);
+}
+
+.stats-badge .count {
+  background: var(--primary);
+  color: white;
+  font-weight: 800;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.stats-badge .label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Form Styles */
+.main-form-section {
+  padding: 2.5rem;
+  margin-bottom: 3.5rem;
+  border: 1px solid var(--border-light);
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.form-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.form-title h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+.modern-form .input-field label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #475569;
+}
+
+.modern-form .input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.modern-form .input-icon {
+  position: absolute;
+  left: 1.25rem;
+  color: var(--text-light);
+}
+
+.modern-form input,
+.modern-form select {
+  padding-left: 3rem !important;
+}
+
+.form-footer {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.button-group {
+  display: flex;
+  gap: 1.25rem;
+}
+
+/* Table Enhancements */
+.table-wrapper {
+  margin-bottom: 4rem;
+}
+
+.modern-table {
+  width: 100%;
+}
+
+.type-tag {
+  background: #f1f5f9;
+  color: var(--bg-dark);
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.capacity-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+  background: white;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-muted);
+}
+
+.btn-icon.edit:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.05);
+  transform: translateY(-2px);
+}
+
+.btn-icon.delete:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: rgba(244, 63, 94, 0.05);
+  transform: translateY(-2px);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 6rem !important;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  color: var(--text-light);
+}
+
+.empty-content p {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .resource-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .button-group {
+    flex-direction: column;
+  }
+  .button-group button {
+    width: 100%;
+  }
+}
