@@ -17,7 +17,7 @@ public class BookingController {
 
      
     @PostMapping
-    public Booking createBooking(@RequestBody @NonNull Booking booking) {
+    public Booking createBooking(@Valid @RequestBody @NonNull Booking booking) {
         return bookingService.createBooking(booking);
     }
 
@@ -25,5 +25,16 @@ public class BookingController {
     @GetMapping
     public List<Booking> getAllBookings() {
         return bookingService.getAllBookings();
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteBooking(@PathVariable Long id) {
+    bookingService.deleteBooking(id);
+    return "Booking deleted successfully with ID: " + id;
+    }
+
+    @PutMapping("/{id}")
+    public Booking updateBooking(@PathVariable Long id,@Valid @RequestBody Booking bookingDetails) {
+    return bookingService.updateBooking(id, bookingDetails);
     }
 }
