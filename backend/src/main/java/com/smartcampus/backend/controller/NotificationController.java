@@ -2,6 +2,7 @@ package com.smartcampus.backend.controller;
 
 import com.smartcampus.backend.model.Notification;
 import com.smartcampus.backend.model.User;
+import com.smartcampus.backend.dto.NotificationResponse;
 import com.smartcampus.backend.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -20,11 +22,14 @@ public class NotificationController {
 
     // 1. GET /api/notifications/me
     @GetMapping("/me")
-    public ResponseEntity<List<Notification>> getMyNotifications(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<NotificationResponse>> getMyNotifications(@AuthenticationPrincipal User user) {
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
-        List<Notification> notifications = notificationService.getUserNotifications(user.getId());
+        List<NotificationResponse> notifications = notificationService.getUserNotifications(user.getId())
+                .stream()
+                .map(NotificationResponse::fromEntity)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(notifications);
     }
 
@@ -68,13 +73,13 @@ public class NotificationController {
     
     // Internal Endpoint just for Demo purposes (to test the system without waiting for external triggers)
     @PostMapping("/test-create")
-    public ResponseEntity<?> testCreateNotification(@AuthenticationPrincipal User user, @RequestBody Map<String, String> payload) {
+    public ResponseEntity<NotificationResponse> testCreateNotification(@AuthenticationPrincipal User user, @RequestBody Map<String, String> payload) {
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
         String type = payload.getOrDefault("type", "SYSTEM_UPDATE");
         String message = payload.getOrDefault("message", "Test notification message");
         Notification notif = notificationService.createNotification(user.getId(), type, message);
-        return ResponseEntity.ok(notif);
+        return ResponseEntity.ok(NotificationResponse.fromEntity(notif));
     }
 }
