@@ -4,6 +4,13 @@ import com.smartcampus.backend.model.User;
 import com.smartcampus.backend.repository.UserRepository;
 import com.smartcampus.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.smartcampus.backend.dto.AuthResponse;
+import com.smartcampus.backend.dto.LoginRequest;
+import com.smartcampus.backend.security.UserDetailsImpl;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +27,33 @@ public class AuthController {
 
     @Autowired
     private JwtTokenProvider tokenProvider;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    // A real login endpoint using Spring Security AuthenticationManager
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userDetails.getUser();
+
+        String token = tokenProvider.generateToken(authentication);
+
+        Map<String, Object> userInfo = Map.of(
+                "id", user.getId(),
+                "email", user.getEmail(),
+                "name", user.getFullName(),
+                "role", user.getRole()
+        );
+
+        return ResponseEntity.ok(new AuthResponse(token, userInfo));
+    }
 
     // A mock login endpoint to bypass real OAuth during local testing
     @PostMapping("/mock-login")

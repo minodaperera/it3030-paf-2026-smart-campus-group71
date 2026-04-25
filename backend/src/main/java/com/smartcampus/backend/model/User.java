@@ -2,18 +2,12 @@ package com.smartcampus.backend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
 
 @Entity
 @Table(name = "users")
 @Data
-public class User implements UserDetails {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +21,9 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String role = "USER"; // USER | ADMIN | TECHNICIAN
+
+    @Column(name = "password")
+    private String password;
 
     @Column(name = "oauth_provider")
     private String oauthProvider; // e.g. 'google'
@@ -42,41 +39,5 @@ public class User implements UserDetails {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
-    }
-
-    // UserDetails methods for Spring Security
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
-    }
-
-    @Override
-    public String getPassword() {
-        return null; // Using OAuth, no password
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 }
