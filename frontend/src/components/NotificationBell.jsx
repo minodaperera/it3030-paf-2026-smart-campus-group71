@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Bell, Trash2, Check, CheckCircle2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '../context/AuthContext';
 
 const NotificationBell = () => {
+    const { token } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -14,9 +16,15 @@ const NotificationBell = () => {
         return () => clearInterval(interval);
     }, []);
 
+    const getAuthHeaders = () => ({
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
     const fetchNotifications = async () => {
         try {
-            const res = await axios.get('http://localhost:8081/api/notifications/me');
+            const res = await axios.get('http://localhost:8081/api/notifications/me', getAuthHeaders());
             setNotifications(res.data);
         } catch (error) {
             console.error("Failed to fetch notifications", error);
@@ -25,7 +33,7 @@ const NotificationBell = () => {
 
     const markAsRead = async (id) => {
         try {
-            await axios.patch(`http://localhost:8081/api/notifications/${id}/read`);
+            await axios.patch(`http://localhost:8081/api/notifications/${id}/read`, {}, getAuthHeaders());
             setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
         } catch (error) {
             console.error("Failed to mark notification as read", error);
@@ -34,7 +42,7 @@ const NotificationBell = () => {
 
     const markAllAsRead = async () => {
         try {
-            await axios.patch('http://localhost:8081/api/notifications/read-all');
+            await axios.patch('http://localhost:8081/api/notifications/read-all', {}, getAuthHeaders());
             setNotifications(notifications.map(n => ({ ...n, read: true })));
         } catch (error) {
             console.error("Failed to mark all as read", error);
@@ -43,7 +51,7 @@ const NotificationBell = () => {
 
     const deleteNotification = async (id) => {
         try {
-            await axios.delete(`http://localhost:8081/api/notifications/${id}`);
+            await axios.delete(`http://localhost:8081/api/notifications/${id}`, getAuthHeaders());
             setNotifications(notifications.filter(n => n.id !== id));
         } catch (error) {
             console.error("Failed to delete notification", error);
@@ -56,7 +64,7 @@ const NotificationBell = () => {
             await axios.post('http://localhost:8081/api/notifications/test-create', {
                 type: 'SYSTEM_UPDATE',
                 message: 'This is a simulated notification message'
-            });
+            }, getAuthHeaders());
             fetchNotifications();
         } catch (error) {
             console.error("Simulate notification failed", error);
