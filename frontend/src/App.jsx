@@ -4,10 +4,42 @@ import ProtectedRoute from './components/ProtectedRoute';
 import NotificationBell from './components/NotificationBell';
 import Login from './pages/Login';
 import { User as UserIcon } from 'lucide-react';
+import axios from 'axios';
 import './App.css';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
+
+  const getAuthHeaders = () => ({
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const handleMarkAllRead = async () => {
+    if (!token) return;
+    try {
+      await axios.patch('http://localhost:8081/api/notifications/read-all', {}, getAuthHeaders());
+      window.dispatchEvent(new Event('refreshNotifications'));
+    } catch (err) {
+      console.error("Failed to mark all as read", err);
+    }
+  };
+
+  const handleCreateTestNotification = async () => {
+    if (!token) return;
+    try {
+      await axios.post('http://localhost:8081/api/notifications/test-create', {
+        type: 'SYSTEM_UPDATE',
+        message: 'Test notification from Dashboard Quick Actions'
+      }, getAuthHeaders());
+      window.dispatchEvent(new Event('refreshNotifications'));
+    } catch (err) {
+      console.error("Failed to create test notification", err);
+    }
+  };
+
+  const handleRefresh = () => {
+    window.dispatchEvent(new Event('refreshNotifications'));
+  };
   
   return (
     <div className="app-container">
@@ -76,7 +108,7 @@ const Dashboard = () => {
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
               Check the bell icon in the navigation bar to see your latest unread alerts.
             </p>
-            <button className="btn btn-primary">Mark all read</button>
+            <button className="btn btn-primary" onClick={handleMarkAllRead}>Mark all read</button>
           </div>
 
           <div className="inner-card">
@@ -85,8 +117,8 @@ const Dashboard = () => {
               Trigger events to verify the real-time notification system is working.
             </p>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="btn btn-primary" onClick={() => alert('Use the Notification Bell drop-down to test actual API calls.')}>Create Test Notification</button>
-              <button className="btn btn-icon" title="Refresh Dashboard">Refresh</button>
+              <button className="btn btn-primary" onClick={handleCreateTestNotification}>Create Test Notification</button>
+              <button className="btn btn-icon" onClick={handleRefresh} title="Refresh Dashboard">Refresh</button>
             </div>
           </div>
 

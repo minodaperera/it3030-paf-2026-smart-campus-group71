@@ -14,7 +14,15 @@ const NotificationBell = () => {
             fetchNotifications();
             // Optional: Polling could be set up here if WebSockets are not used
             const interval = setInterval(fetchNotifications, 30000); // every 30s
-            return () => clearInterval(interval);
+            
+            // Allow external components to trigger a refresh
+            const handleRefresh = () => fetchNotifications();
+            window.addEventListener('refreshNotifications', handleRefresh);
+            
+            return () => {
+                clearInterval(interval);
+                window.removeEventListener('refreshNotifications', handleRefresh);
+            };
         }
     }, [token]);
 
