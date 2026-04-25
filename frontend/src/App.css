@@ -1,24 +1,26 @@
 /* Base Variables */
 :root {
-  --primary-color: #2563eb;
-  --primary-hover: #1d4ed8;
-  --bg-color: #f8fafc;
+  --app-bg: #2d325a;
   --card-bg: #ffffff;
   --text-main: #1e293b;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
+  --primary-color: #3b4274;
+  --primary-hover: #2d325a;
+  --accent-yellow: #fcd34d;
   --danger: #ef4444;
   --danger-hover: #dc2626;
   --success: #10b981;
   --warning: #f59e0b;
-  --radius: 8px;
+  --radius-lg: 20px;
+  --radius: 12px;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 body {
-  background-color: var(--bg-color);
+  background-color: var(--app-bg);
   color: var(--text-main);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   margin: 0;
@@ -30,26 +32,35 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding: 1.5rem 0;
 }
 
 .top-navbar {
   background-color: var(--card-bg);
-  border-bottom: 1px solid var(--border-color);
-  padding: 0 2rem;
-  height: 64px;
+  border-radius: var(--radius-lg);
+  margin: 0 2.5rem;
+  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  box-shadow: var(--shadow-md);
+}
+
+.navbar-brand-container {
+  display: flex;
+  flex-direction: column;
 }
 
 .navbar-brand {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--text-main);
+  margin: 0;
+}
+
+.navbar-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -59,35 +70,100 @@ body {
   gap: 1.5rem;
 }
 
+/* Tab Bar */
+.tab-bar {
+  background-color: var(--card-bg);
+  border-radius: var(--radius-lg);
+  margin: 1.5rem 2.5rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  gap: 1rem;
+  box-shadow: var(--shadow-md);
+  align-items: center;
+}
+
+.tab-item {
+  padding: 0.6rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.tab-item:hover:not(.active) {
+  background-color: #f1f5f9;
+  color: var(--text-main);
+}
+
+.tab-item.active {
+  background-color: var(--primary-color);
+  color: var(--accent-yellow);
+}
+
+.tab-badge {
+  background-color: var(--danger);
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Main Content Card */
 .main-content {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
+  background-color: var(--card-bg);
+  border-radius: var(--radius-lg);
+  margin: 0 2.5rem 2rem;
+  padding: 2.5rem;
+  box-shadow: var(--shadow-md);
   flex: 1;
 }
 
-/* Cards */
-.card {
-  background-color: var(--card-bg);
-  border-radius: var(--radius);
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.content-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-main);
+}
+
+/* Inner Cards */
+.inner-card {
   border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
+  background-color: #fcfcfc;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s;
 }
 
-.card-header {
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
+.inner-card:hover {
+  box-shadow: var(--shadow-md);
 }
 
-.card-title {
-  margin: 0;
-  font-size: 1.125rem;
+.inner-card-title {
+  font-size: 1.1rem;
   font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Login Page Specifics */
