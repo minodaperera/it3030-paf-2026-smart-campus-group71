@@ -21,47 +21,60 @@ const Login = () => {
     };
 
     return (
-        <div className="login-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px' }}>
-            <h2>Welcome to Smart Campus</h2>
-            <p>This is a local development mock login to bypass real OAuth</p>
-            
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '300px' }}>
-                <div>
-                    <label>Email:</label>
-                    <input 
-                        type="email" 
-                        value={email} 
-                        onChange={(e) => setEmail(e.target.value)} 
-                        required 
-                        style={{ width: '100%', padding: '8px' }}
-                    />
-                </div>
-                <div>
-                    <label>Name:</label>
-                    <input 
-                        type="text" 
-                        value={name} 
-                        onChange={(e) => setName(e.target.value)} 
-                        required 
-                        style={{ width: '100%', padding: '8px' }}
-                    />
-                </div>
-                <div>
-                    <label>Role:</label>
-                    <select value={role} onChange={(e) => setRole(e.target.value)} style={{ width: '100%', padding: '8px' }}>
-                        <option value="USER">USER</option>
-                        <option value="ADMIN">ADMIN</option>
-                        <option value="TECHNICIAN">TECHNICIAN</option>
-                    </select>
+        <div className="login-wrapper">
+            <div className="login-card">
+                <div className="login-header">
+                    <h2>Smart Campus Hub</h2>
+                    <p>Sign in to access your operations dashboard</p>
                 </div>
                 
-                <button type="submit" style={{ padding: '10px', background: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}>
-                    Login (Mock OAuth)
-                </button>
-            </form>
-            
-            <div style={{ marginTop: '20px', fontSize: '12px', color: 'gray' }}>
-                Note: In production, this form will be replaced with standard Google OAuth Redirects.
+                <form onSubmit={handleLogin}>
+                    <div className="form-group">
+                        <label className="form-label">Email Address</label>
+                        <input 
+                            type="email" 
+                            className="form-control"
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
+                            required 
+                            placeholder="Enter your email"
+                        />
+                    </div>
+                    
+                    <div className="form-group">
+                        <label className="form-label">Full Name</label>
+                        <input 
+                            type="text" 
+                            className="form-control"
+                            value={name} 
+                            onChange={(e) => setName(e.target.value)} 
+                            required 
+                            placeholder="Enter your name"
+                        />
+                    </div>
+                    
+                    <div className="form-group">
+                        <label className="form-label">System Role</label>
+                        <select 
+                            className="form-control"
+                            value={role} 
+                            onChange={(e) => setRole(e.target.value)}
+                        >
+                            <option value="USER">Standard User</option>
+                            <option value="ADMIN">System Administrator</option>
+                            <option value="TECHNICIAN">Campus Technician</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '1rem' }}>
+                        Sign In (Development Mode)
+                    </button>
+                </form>
+                
+                <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    <p>Note: This is a mock authentication interface.</p>
+                    <p>In production, this will redirect to Google OAuth.</p>
+                </div>
             </div>
         </div>
     );

@@ -9,31 +9,42 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   
   return (
-    <div style={{ padding: '20px' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h2>Smart Campus Operations Hub</h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+    <div className="app-container">
+      <header className="top-navbar">
+        <h2 className="navbar-brand">Smart Campus Operations Hub</h2>
+        <div className="navbar-actions">
           <NotificationBell />
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-            <span style={{ fontWeight: 'bold' }}>{user.name}</span>
-            <span style={{ fontSize: '12px', background: '#eee', padding: '2px 6px', borderRadius: '4px' }}>{user.role}</span>
+          <div className="user-profile-display">
+            <span className="user-name">{user.name}</span>
+            <span className={`badge ${user.role === 'ADMIN' ? 'badge-admin' : 'badge-role'}`}>
+              {user.role}
+            </span>
           </div>
-          <button onClick={logout} style={{ padding: '5px 10px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          <button onClick={logout} className="btn btn-danger">
             Logout
           </button>
         </div>
       </header>
       
-      <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px', minHeight: '300px' }}>
-        <h3>Dashboard Overview</h3>
-        <p>Welcome to the protected dashboard! You can only see this if you are logged in.</p>
-        {user.role === 'ADMIN' && (
-          <div style={{ marginTop: '20px', padding: '15px', background: '#fff3cd', border: '1px solid #ffeeba', borderRadius: '4px' }}>
-            <strong>Admin Panel</strong>
-            <p>You have ADMIN privileges. Here you can manage users, roles, and campus operations.</p>
+      <main className="main-content">
+        <div className="card">
+          <div className="card-header">
+            <h3 className="card-title">Dashboard Overview</h3>
           </div>
-        )}
-      </div>
+          <p style={{ color: 'var(--text-muted)' }}>
+            Welcome to the protected dashboard! You can only see this if you are logged in.
+          </p>
+          
+          {user.role === 'ADMIN' && (
+            <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 'var(--radius)' }}>
+              <strong style={{ color: '#92400e', display: 'block', marginBottom: '0.5rem' }}>Admin Panel</strong>
+              <p style={{ color: '#b45309', margin: 0, fontSize: '0.875rem' }}>
+                You have ADMIN privileges. Here you can manage users, roles, and campus operations.
+              </p>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 };
