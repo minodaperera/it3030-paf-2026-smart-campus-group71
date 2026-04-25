@@ -10,11 +10,13 @@ const NotificationBell = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        fetchNotifications();
-        // Optional: Polling could be set up here if WebSockets are not used
-        const interval = setInterval(fetchNotifications, 30000); // every 30s
-        return () => clearInterval(interval);
-    }, []);
+        if (token) {
+            fetchNotifications();
+            // Optional: Polling could be set up here if WebSockets are not used
+            const interval = setInterval(fetchNotifications, 30000); // every 30s
+            return () => clearInterval(interval);
+        }
+    }, [token]);
 
     const getAuthHeaders = () => ({
         headers: {
@@ -23,6 +25,7 @@ const NotificationBell = () => {
     });
 
     const fetchNotifications = async () => {
+        if (!token) return;
         try {
             const res = await axios.get('http://localhost:8081/api/notifications/me', getAuthHeaders());
             setNotifications(res.data);

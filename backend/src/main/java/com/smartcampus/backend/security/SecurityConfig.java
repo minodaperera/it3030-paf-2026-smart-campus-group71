@@ -50,6 +50,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Allow mock login and real oauth callback
                 .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/notifications/**").authenticated()
                 .anyRequest().authenticated()
             );
 
