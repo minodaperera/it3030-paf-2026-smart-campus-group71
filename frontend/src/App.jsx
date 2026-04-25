@@ -235,7 +235,7 @@ function UserProfile({ user, addToast }) {
   )
 }
 
-// ==================== ROLE-BASED DASHBOARD ====================
+// ==================== ROLE-BASED DASHBOARD WITH DATE RANGE PICKER ====================
 function Dashboard({ addToast, userRole, userId }) {
   const [stats, setStats] = useState({
     totalTickets: 0,
@@ -253,6 +253,105 @@ function Dashboard({ addToast, userRole, userId }) {
     myWeeklyTrends: [2, 5, 3, 4, 6, 8, 7]
   })
   const [loading, setLoading] = useState(true)
+  const [allTickets, setAllTickets] = useState([])
+  
+  // Date Range State
+  const [dateRange, setDateRange] = useState({
+    startDate: '',
+    endDate: ''
+  })
+  const [filteredStats, setFilteredStats] = useState(null)
+  const [showDateFilter, setShowDateFilter] = useState(false)
+
+  // Generate weekly trends from tickets
+  const generateWeeklyTrends = (tickets) => {
+    const trends = [0, 0, 0, 0, 0, 0, 0]
+    
+    tickets.forEach(ticket => {
+      if (ticket.createdAt) {
+        const date = new Date(ticket.createdAt)
+        const dayOfWeek = date.getDay() // 0 = Sunday
+        trends[dayOfWeek]++
+      }
+    })
+    
+    // Reorder to start from Monday (index 1 to 6, then index 0)
+    const mondayFirst = [...trends.slice(1), trends[0]]
+    return mondayFirst
+  }
+
+  // Filter tickets by date range
+  const filterTicketsByDateRange = (tickets, startDate, endDate) => {
+    if (!startDate && !endDate) return tickets
+    
+    return tickets.filter(ticket => {
+      if (!ticket.createdAt) return false
+      const ticketDate = new Date(ticket.createdAt).toISOString().split('T')[0]
+      if (startDate && endDate) {
+        return ticketDate >= startDate && ticketDate <= endDate
+      } else if (startDate) {
+        return ticketDate >= startDate
+      } else if (endDate) {
+        return ticketDate <= endDate
+      }
+      return true
+    })
+  }
+
+  // Apply date filter
+  const applyDateFilter = () => {
+    if (!dateRange.startDate && !dateRange.endDate) {
+      addToast('Please select a date range', 'error')
+      return
+    }
+    
+    const filtered = filterTicketsByDateRange(allTickets, dateRange.startDate, dateRange.endDate)
+    
+    // Calculate filtered stats
+    const openTickets = filtered.filter(t => t.status === 'OPEN').length
+    const inProgressTickets = filtered.filter(t => t.status === 'IN_PROGRESS').length
+    const resolvedTickets = filtered.filter(t => t.status === 'RESOLVED').length
+    const closedTickets = filtered.filter(t => t.status === 'CLOSED').length
+    const highPriorityTickets = filtered.filter(t => t.priority === 'HIGH').length
+    const mediumPriorityTickets = filtered.filter(t => t.priority === 'MEDIUM').length
+    const lowPriorityTickets = filtered.filter(t => t.priority === 'LOW').length
+    
+    const myTickets = filtered.filter(t => t.userId === userId)
+    const myOpenTickets = myTickets.filter(t => t.status === 'OPEN').length
+    const myResolvedTickets = myTickets.filter(t => t.status === 'RESOLVED' || t.status === 'CLOSED').length
+    
+    const weeklyTrends = generateWeeklyTrends(filtered)
+    const myWeeklyTrends = generateWeeklyTrends(myTickets)
+    
+    setFilteredStats({
+      totalTickets: filtered.length,
+      openTickets,
+      inProgressTickets,
+      resolvedTickets,
+      closedTickets,
+      highPriorityTickets,
+      mediumPriorityTickets,
+      lowPriorityTickets,
+      myTickets: myTickets.length,
+      myOpenTickets,
+      myResolvedTickets,
+      weeklyTrends,
+      myWeeklyTrends
+    })
+    
+    setShowDateFilter(false)
+    addToast(`Showing reports from ${dateRange.startDate || 'start'} to ${dateRange.endDate || 'today'}`, 'success')
+  }
+
+  // Reset date filter
+  const resetDateFilter = () => {
+    setDateRange({ startDate: '', endDate: '' })
+    setFilteredStats(null)
+    addToast('Date filter cleared - showing all data', 'success')
+  }
+
+  // Get current stats (filtered or original)
+  const currentStats = filteredStats || stats
 
   useEffect(() => {
     async function fetchData() {
@@ -261,6 +360,7 @@ function Dashboard({ addToast, userRole, userId }) {
           headers: { 'X-User-Role': userRole } 
         })
         const tickets = await response.json()
+        setAllTickets(tickets)
         
         // My tickets stats (for USER view)
         const myTickets = tickets.filter(t => t.userId === userId)
@@ -276,6 +376,9 @@ function Dashboard({ addToast, userRole, userId }) {
         const mediumPriorityTickets = tickets.filter(t => t.priority === 'MEDIUM').length
         const lowPriorityTickets = tickets.filter(t => t.priority === 'LOW').length
         
+        const weeklyTrends = generateWeeklyTrends(tickets)
+        const myWeeklyTrends = generateWeeklyTrends(myTickets)
+        
         setStats({
           totalTickets: tickets.length,
           openTickets,
@@ -288,8 +391,8 @@ function Dashboard({ addToast, userRole, userId }) {
           myTickets: myTickets.length,
           myOpenTickets,
           myResolvedTickets,
-          weeklyTrends: [12, 19, 15, 17, 14, 22, 18],
-          myWeeklyTrends: [2, 5, 3, 4, 6, 8, 7]
+          weeklyTrends,
+          myWeeklyTrends
         })
         setLoading(false)
       } catch (error) {
@@ -306,7 +409,7 @@ function Dashboard({ addToast, userRole, userId }) {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         datasets: [{
           label: 'My Tickets Created',
-          data: stats.myWeeklyTrends,
+          data: currentStats.myWeeklyTrends,
           backgroundColor: 'rgba(54, 162, 235, 0.6)',
           borderColor: 'rgba(54, 162, 235, 1)',
           borderWidth: 2,
@@ -317,7 +420,7 @@ function Dashboard({ addToast, userRole, userId }) {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         datasets: [{
           label: 'All Tickets Created',
-          data: stats.weeklyTrends,
+          data: currentStats.weeklyTrends,
           backgroundColor: 'rgba(54, 162, 235, 0.6)',
           borderColor: 'rgba(54, 162, 235, 1)',
           borderWidth: 2,
@@ -330,7 +433,7 @@ function Dashboard({ addToast, userRole, userId }) {
     return {
       labels: ['High', 'Medium', 'Low'],
       datasets: [{
-        data: [stats.highPriorityTickets, stats.mediumPriorityTickets, stats.lowPriorityTickets],
+        data: [currentStats.highPriorityTickets, currentStats.mediumPriorityTickets, currentStats.lowPriorityTickets],
         backgroundColor: ['#ef4444', '#f59e0b', '#10b981'],
       }]
     }
@@ -340,7 +443,7 @@ function Dashboard({ addToast, userRole, userId }) {
     return {
       labels: ['Open', 'In Progress', 'Resolved', 'Closed'],
       datasets: [{
-        data: [stats.openTickets, stats.inProgressTickets, stats.resolvedTickets, stats.closedTickets],
+        data: [currentStats.openTickets, currentStats.inProgressTickets, currentStats.resolvedTickets, currentStats.closedTickets],
         backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#64748b'],
       }]
     }
@@ -350,7 +453,7 @@ function Dashboard({ addToast, userRole, userId }) {
     return {
       labels: ['Open', 'Resolved'],
       datasets: [{
-        data: [stats.myOpenTickets, stats.myResolvedTickets],
+        data: [currentStats.myOpenTickets, currentStats.myResolvedTickets],
         backgroundColor: ['#3b82f6', '#10b981'],
       }]
     }
@@ -364,72 +467,96 @@ function Dashboard({ addToast, userRole, userId }) {
       <div className="dashboard">
         <div className="dashboard-header">
           <h2>📊 My Personal Dashboard</h2>
-          <div className="role-badge user-badge">👤 User View</div>
+          <div className="dashboard-actions">
+            <button onClick={() => setShowDateFilter(!showDateFilter)} className="date-filter-btn">
+              📅 Date Range
+            </button>
+            {filteredStats && (
+              <button onClick={resetDateFilter} className="reset-filter-btn">
+                🔄 Reset Filter
+              </button>
+            )}
+            <div className="role-badge user-badge">👤 User View</div>
+          </div>
         </div>
         
+        {/* Date Range Picker Modal */}
+        {showDateFilter && (
+          <div className="date-range-modal">
+            <div className="date-range-content">
+              <h3>Select Date Range</h3>
+              <div className="date-range-inputs">
+                <div>
+                  <label>Start Date</label>
+                  <input 
+                    type="date" 
+                    value={dateRange.startDate}
+                    onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label>End Date</label>
+                  <input 
+                    type="date" 
+                    value={dateRange.endDate}
+                    onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="quick-filters">
+                <button onClick={() => {
+                  const today = new Date().toISOString().split('T')[0]
+                  setDateRange({ startDate: today, endDate: today })
+                }}>Today</button>
+                <button onClick={() => {
+                  const today = new Date().toISOString().split('T')[0]
+                  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                  setDateRange({ startDate: weekAgo, endDate: today })
+                }}>Last 7 Days</button>
+                <button onClick={() => {
+                  const today = new Date().toISOString().split('T')[0]
+                  const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                  setDateRange({ startDate: monthAgo, endDate: today })
+                }}>Last 30 Days</button>
+              </div>
+              <div className="date-range-actions">
+                <button onClick={applyDateFilter} className="apply-btn">Apply Filter</button>
+                <button onClick={() => setShowDateFilter(false)} className="cancel-btn">Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {filteredStats && (
+          <div className="filter-info">
+            <span>📅 Showing data from {dateRange.startDate || 'start'} to {dateRange.endDate || 'today'}</span>
+          </div>
+        )}
+        
         <div className="stats-grid">
-          <div className="stat-card total">
-            <h3>My Total Tickets</h3>
-            <p className="stat-number">{stats.myTickets}</p>
-          </div>
-          <div className="stat-card open">
-            <h3>Open Tickets</h3>
-            <p className="stat-number">{stats.myOpenTickets}</p>
-          </div>
-          <div className="stat-card resolved">
-            <h3>Resolved Tickets</h3>
-            <p className="stat-number">{stats.myResolvedTickets}</p>
-          </div>
-          <div className="stat-card avg-time">
-            <h3>Resolution Rate</h3>
-            <p className="stat-number">{stats.myTickets === 0 ? 0 : Math.round((stats.myResolvedTickets / stats.myTickets) * 100)}%</p>
-          </div>
+          <div className="stat-card total"><h3>My Total Tickets</h3><p className="stat-number">{currentStats.myTickets}</p></div>
+          <div className="stat-card open"><h3>Open Tickets</h3><p className="stat-number">{currentStats.myOpenTickets}</p></div>
+          <div className="stat-card resolved"><h3>Resolved Tickets</h3><p className="stat-number">{currentStats.myResolvedTickets}</p></div>
+          <div className="stat-card avg-time"><h3>Resolution Rate</h3><p className="stat-number">{currentStats.myTickets === 0 ? 0 : Math.round((currentStats.myResolvedTickets / currentStats.myTickets) * 100)}%</p></div>
         </div>
         
         <div className="charts-section">
-          <div className="chart-card">
-            <h3>📈 My Ticket Activity (Weekly)</h3>
-            <Bar data={getWeeklyData()} options={{ responsive: true }} />
-          </div>
-          <div className="chart-card">
-            <h3>🥧 My Ticket Status</h3>
-            <Pie data={getMyStatusData()} options={{ responsive: true }} />
-          </div>
+          <div className="chart-card"><h3>📈 My Ticket Activity (Weekly)</h3><Bar data={getWeeklyData()} options={{ responsive: true }} /></div>
+          <div className="chart-card"><h3>🥧 My Ticket Status</h3><Pie data={getMyStatusData()} options={{ responsive: true }} /></div>
         </div>
         
         <div className="priority-section">
           <h3>⚡ My Priority Distribution</h3>
           <div className="priority-bars">
-            <div className="priority-bar-item">
-              <span>High</span>
-              <div className="bar-container">
-                <div className="bar high-bar" style={{ width: `${(stats.highPriorityTickets / stats.myTickets) * 100 || 0}%` }}>
-                  {stats.highPriorityTickets}
-                </div>
-              </div>
-            </div>
-            <div className="priority-bar-item">
-              <span>Medium</span>
-              <div className="bar-container">
-                <div className="bar medium-bar" style={{ width: `${(stats.mediumPriorityTickets / stats.myTickets) * 100 || 0}%` }}>
-                  {stats.mediumPriorityTickets}
-                </div>
-              </div>
-            </div>
-            <div className="priority-bar-item">
-              <span>Low</span>
-              <div className="bar-container">
-                <div className="bar low-bar" style={{ width: `${(stats.lowPriorityTickets / stats.myTickets) * 100 || 0}%` }}>
-                  {stats.lowPriorityTickets}
-                </div>
-              </div>
-            </div>
+            <div className="priority-bar-item"><span>High</span><div className="bar-container"><div className="bar high-bar" style={{ width: `${(currentStats.highPriorityTickets / currentStats.myTickets) * 100 || 0}%` }}>{currentStats.highPriorityTickets}</div></div></div>
+            <div className="priority-bar-item"><span>Medium</span><div className="bar-container"><div className="bar medium-bar" style={{ width: `${(currentStats.mediumPriorityTickets / currentStats.myTickets) * 100 || 0}%` }}>{currentStats.mediumPriorityTickets}</div></div></div>
+            <div className="priority-bar-item"><span>Low</span><div className="bar-container"><div className="bar low-bar" style={{ width: `${(currentStats.lowPriorityTickets / currentStats.myTickets) * 100 || 0}%` }}>{currentStats.lowPriorityTickets}</div></div></div>
           </div>
         </div>
         
         <div className="insight-card">
           <h3>💡 Personal Insight</h3>
-          <p>You have {stats.myOpenTickets} open ticket(s). {stats.myResolvedTickets} ticket(s) resolved successfully!</p>
+          <p>You have {currentStats.myOpenTickets} open ticket(s). {currentStats.myResolvedTickets} ticket(s) resolved successfully!</p>
         </div>
       </div>
     )
@@ -441,81 +568,60 @@ function Dashboard({ addToast, userRole, userId }) {
       <div className="dashboard">
         <div className="dashboard-header">
           <h2>🔧 Technician Dashboard</h2>
-          <div className="role-badge technician-badge">👨‍🔧 Technician View</div>
+          <div className="dashboard-actions">
+            <button onClick={() => setShowDateFilter(!showDateFilter)} className="date-filter-btn">📅 Date Range</button>
+            {filteredStats && <button onClick={resetDateFilter} className="reset-filter-btn">🔄 Reset Filter</button>}
+            <div className="role-badge technician-badge">👨‍🔧 Technician View</div>
+          </div>
         </div>
         
+        {showDateFilter && (
+          <div className="date-range-modal">
+            <div className="date-range-content">
+              <h3>Select Date Range</h3>
+              <div className="date-range-inputs">
+                <div><label>Start Date</label><input type="date" value={dateRange.startDate} onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})} /></div>
+                <div><label>End Date</label><input type="date" value={dateRange.endDate} onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})} /></div>
+              </div>
+              <div className="quick-filters">
+                <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setDateRange({ startDate: today, endDate: today }) }}>Today</button>
+                <button onClick={() => { const today = new Date().toISOString().split('T')[0]; const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; setDateRange({ startDate: weekAgo, endDate: today }) }}>Last 7 Days</button>
+                <button onClick={() => { const today = new Date().toISOString().split('T')[0]; const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; setDateRange({ startDate: monthAgo, endDate: today }) }}>Last 30 Days</button>
+              </div>
+              <div className="date-range-actions">
+                <button onClick={applyDateFilter} className="apply-btn">Apply Filter</button>
+                <button onClick={() => setShowDateFilter(false)} className="cancel-btn">Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {filteredStats && <div className="filter-info">📅 Showing data from {dateRange.startDate || 'start'} to {dateRange.endDate || 'today'}</div>}
+        
         <div className="stats-grid">
-          <div className="stat-card total">
-            <h3>Total System Tickets</h3>
-            <p className="stat-number">{stats.totalTickets}</p>
-          </div>
-          <div className="stat-card open">
-            <h3>Open Tickets</h3>
-            <p className="stat-number">{stats.openTickets}</p>
-          </div>
-          <div className="stat-card in-progress">
-            <h3>In Progress</h3>
-            <p className="stat-number">{stats.inProgressTickets}</p>
-          </div>
-          <div className="stat-card resolved">
-            <h3>Resolved</h3>
-            <p className="stat-number">{stats.resolvedTickets}</p>
-          </div>
-          <div className="stat-card closed">
-            <h3>Closed</h3>
-            <p className="stat-number">{stats.closedTickets}</p>
-          </div>
-          <div className="stat-card avg-time">
-            <h3>Pending Tasks</h3>
-            <p className="stat-number">{stats.openTickets + stats.inProgressTickets}</p>
-          </div>
+          <div className="stat-card total"><h3>Total System Tickets</h3><p className="stat-number">{currentStats.totalTickets}</p></div>
+          <div className="stat-card open"><h3>Open Tickets</h3><p className="stat-number">{currentStats.openTickets}</p></div>
+          <div className="stat-card in-progress"><h3>In Progress</h3><p className="stat-number">{currentStats.inProgressTickets}</p></div>
+          <div className="stat-card resolved"><h3>Resolved</h3><p className="stat-number">{currentStats.resolvedTickets}</p></div>
+          <div className="stat-card closed"><h3>Closed</h3><p className="stat-number">{currentStats.closedTickets}</p></div>
+          <div className="stat-card avg-time"><h3>Pending Tasks</h3><p className="stat-number">{currentStats.openTickets + currentStats.inProgressTickets}</p></div>
         </div>
         
         <div className="charts-section">
-          <div className="chart-card">
-            <h3>📈 System Ticket Trends</h3>
-            <Bar data={getWeeklyData()} options={{ responsive: true }} />
-          </div>
-          <div className="chart-card">
-            <h3>🔄 Ticket Status Distribution</h3>
-            <Doughnut data={getStatusData()} options={{ responsive: true }} />
-          </div>
+          <div className="chart-card"><h3>📈 System Ticket Trends</h3><Bar data={getWeeklyData()} options={{ responsive: true }} /></div>
+          <div className="chart-card"><h3>🔄 Ticket Status Distribution</h3><Doughnut data={getStatusData()} options={{ responsive: true }} /></div>
         </div>
         
         <div className="priority-section">
           <h3>⚠️ Priority Distribution</h3>
           <div className="priority-bars">
-            <div className="priority-bar-item">
-              <span>High Priority</span>
-              <div className="bar-container">
-                <div className="bar high-bar" style={{ width: `${(stats.highPriorityTickets / stats.totalTickets) * 100 || 0}%` }}>
-                  {stats.highPriorityTickets}
-                </div>
-              </div>
-            </div>
-            <div className="priority-bar-item">
-              <span>Medium Priority</span>
-              <div className="bar-container">
-                <div className="bar medium-bar" style={{ width: `${(stats.mediumPriorityTickets / stats.totalTickets) * 100 || 0}%` }}>
-                  {stats.mediumPriorityTickets}
-                </div>
-              </div>
-            </div>
-            <div className="priority-bar-item">
-              <span>Low Priority</span>
-              <div className="bar-container">
-                <div className="bar low-bar" style={{ width: `${(stats.lowPriorityTickets / stats.totalTickets) * 100 || 0}%` }}>
-                  {stats.lowPriorityTickets}
-                </div>
-              </div>
-            </div>
+            <div className="priority-bar-item"><span>High</span><div className="bar-container"><div className="bar high-bar" style={{ width: `${(currentStats.highPriorityTickets / currentStats.totalTickets) * 100 || 0}%` }}>{currentStats.highPriorityTickets}</div></div></div>
+            <div className="priority-bar-item"><span>Medium</span><div className="bar-container"><div className="bar medium-bar" style={{ width: `${(currentStats.mediumPriorityTickets / currentStats.totalTickets) * 100 || 0}%` }}>{currentStats.mediumPriorityTickets}</div></div></div>
+            <div className="priority-bar-item"><span>Low</span><div className="bar-container"><div className="bar low-bar" style={{ width: `${(currentStats.lowPriorityTickets / currentStats.totalTickets) * 100 || 0}%` }}>{currentStats.lowPriorityTickets}</div></div></div>
           </div>
         </div>
         
-        <div className="insight-card">
-          <h3>💡 Technician Insight</h3>
-          <p>There are {stats.openTickets} open tickets that need attention. {stats.inProgressTickets} tickets are currently being worked on.</p>
-        </div>
+        <div className="insight-card"><h3>💡 Technician Insight</h3><p>There are {currentStats.openTickets} open tickets that need attention. {currentStats.inProgressTickets} tickets are currently being worked on.</p></div>
       </div>
     )
   }
@@ -525,65 +631,74 @@ function Dashboard({ addToast, userRole, userId }) {
     <div className="dashboard">
       <div className="dashboard-header">
         <h2>👑 Admin Dashboard</h2>
-        <button onClick={() => {
-          import('jspdf').then(({ default: jsPDF }) => {
-            const doc = new jsPDF()
-            doc.setFontSize(18)
-            doc.text('System Statistics Report', 14, 20)
-            doc.setFontSize(12)
-            doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 35)
-            doc.text(`Total Tickets: ${stats.totalTickets}`, 14, 50)
-            doc.text(`Open: ${stats.openTickets} | In Progress: ${stats.inProgressTickets}`, 14, 60)
-            doc.text(`Resolved: ${stats.resolvedTickets} | Closed: ${stats.closedTickets}`, 14, 70)
-            doc.text(`High Priority: ${stats.highPriorityTickets} | Medium: ${stats.mediumPriorityTickets} | Low: ${stats.lowPriorityTickets}`, 14, 80)
-            doc.save(`system_report_${new Date().toISOString().slice(0, 19)}.pdf`)
-            addToast('System report downloaded!', 'success')
-          })
-        }} className="download-report-btn">
-          📥 Download Full Report
-        </button>
+        <div className="dashboard-actions">
+          <button onClick={() => setShowDateFilter(!showDateFilter)} className="date-filter-btn">📅 Date Range</button>
+          {filteredStats && <button onClick={resetDateFilter} className="reset-filter-btn">🔄 Reset Filter</button>}
+          <button onClick={() => {
+            import('jspdf').then(({ default: jsPDF }) => {
+              const doc = new jsPDF()
+              doc.setFontSize(18)
+              doc.text('System Statistics Report', 14, 20)
+              doc.setFontSize(12)
+              doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 35)
+              if (filteredStats) doc.text(`Date Range: ${dateRange.startDate || 'start'} to ${dateRange.endDate || 'today'}`, 14, 45)
+              doc.text(`Total Tickets: ${currentStats.totalTickets}`, 14, 60)
+              doc.text(`Open: ${currentStats.openTickets} | In Progress: ${currentStats.inProgressTickets}`, 14, 70)
+              doc.text(`Resolved: ${currentStats.resolvedTickets} | Closed: ${currentStats.closedTickets}`, 14, 80)
+              doc.text(`High Priority: ${currentStats.highPriorityTickets} | Medium: ${currentStats.mediumPriorityTickets} | Low: ${currentStats.lowPriorityTickets}`, 14, 90)
+              doc.save(`system_report_${new Date().toISOString().slice(0, 19)}.pdf`)
+              addToast('System report downloaded!', 'success')
+            })
+          }} className="download-report-btn">📥 Download Full Report</button>
+          <div className="role-badge admin-badge">👑 Admin View</div>
+        </div>
       </div>
+      
+      {showDateFilter && (
+        <div className="date-range-modal">
+          <div className="date-range-content">
+            <h3>Select Date Range for Report</h3>
+            <div className="date-range-inputs">
+              <div><label>Start Date</label><input type="date" value={dateRange.startDate} onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})} /></div>
+              <div><label>End Date</label><input type="date" value={dateRange.endDate} onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})} /></div>
+            </div>
+            <div className="quick-filters">
+              <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setDateRange({ startDate: today, endDate: today }) }}>Today</button>
+              <button onClick={() => { const today = new Date().toISOString().split('T')[0]; const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; setDateRange({ startDate: weekAgo, endDate: today }) }}>Last 7 Days</button>
+              <button onClick={() => { const today = new Date().toISOString().split('T')[0]; const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; setDateRange({ startDate: monthAgo, endDate: today }) }}>Last 30 Days</button>
+              <button onClick={() => { const today = new Date().toISOString().split('T')[0]; const yearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; setDateRange({ startDate: yearAgo, endDate: today }) }}>Last Year</button>
+            </div>
+            <div className="date-range-actions">
+              <button onClick={applyDateFilter} className="apply-btn">Apply Filter</button>
+              <button onClick={() => setShowDateFilter(false)} className="cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {filteredStats && <div className="filter-info">📅 Showing data from {dateRange.startDate || 'start'} to {dateRange.endDate || 'today'}</div>}
       
       <div className="stats-grid">
-        <div className="stat-card total"><h3>Total Tickets</h3><p className="stat-number">{stats.totalTickets}</p></div>
-        <div className="stat-card open"><h3>Open</h3><p className="stat-number">{stats.openTickets}</p></div>
-        <div className="stat-card in-progress"><h3>In Progress</h3><p className="stat-number">{stats.inProgressTickets}</p></div>
-        <div className="stat-card resolved"><h3>Resolved</h3><p className="stat-number">{stats.resolvedTickets}</p></div>
-        <div className="stat-card closed"><h3>Closed</h3><p className="stat-number">{stats.closedTickets}</p></div>
-        <div className="stat-card avg-time"><h3>Completion Rate</h3><p className="stat-number">{stats.totalTickets === 0 ? 0 : Math.round(((stats.resolvedTickets + stats.closedTickets) / stats.totalTickets) * 100)}%</p></div>
+        <div className="stat-card total"><h3>Total Tickets</h3><p className="stat-number">{currentStats.totalTickets}</p></div>
+        <div className="stat-card open"><h3>Open</h3><p className="stat-number">{currentStats.openTickets}</p></div>
+        <div className="stat-card in-progress"><h3>In Progress</h3><p className="stat-number">{currentStats.inProgressTickets}</p></div>
+        <div className="stat-card resolved"><h3>Resolved</h3><p className="stat-number">{currentStats.resolvedTickets}</p></div>
+        <div className="stat-card closed"><h3>Closed</h3><p className="stat-number">{currentStats.closedTickets}</p></div>
+        <div className="stat-card avg-time"><h3>Completion Rate</h3><p className="stat-number">{currentStats.totalTickets === 0 ? 0 : Math.round(((currentStats.resolvedTickets + currentStats.closedTickets) / currentStats.totalTickets) * 100)}%</p></div>
       </div>
       
       <div className="charts-section">
-        <div className="chart-card">
-          <h3>📈 Weekly Ticket Trends</h3>
-          <Bar data={getWeeklyData()} options={{ responsive: true }} />
-        </div>
-        <div className="chart-card">
-          <h3>🥧 Priority Distribution</h3>
-          <Pie data={getPriorityData()} options={{ responsive: true }} />
-        </div>
+        <div className="chart-card"><h3>📈 Weekly Ticket Trends</h3><Bar data={getWeeklyData()} options={{ responsive: true }} /></div>
+        <div className="chart-card"><h3>🥧 Priority Distribution</h3><Pie data={getPriorityData()} options={{ responsive: true }} /></div>
       </div>
       
       <div className="charts-section">
-        <div className="chart-card">
-          <h3>🔄 Status Distribution</h3>
-          <Doughnut data={getStatusData()} options={{ responsive: true }} />
-        </div>
-        <div className="chart-card">
-          <h3>📊 System Overview</h3>
+        <div className="chart-card"><h3>🔄 Status Distribution</h3><Doughnut data={getStatusData()} options={{ responsive: true }} /></div>
+        <div className="chart-card"><h3>📊 System Overview</h3>
           <div className="system-overview">
-            <div className="overview-item">
-              <span className="overview-label">Resolution Rate</span>
-              <span className="overview-value">{stats.totalTickets === 0 ? 0 : Math.round(((stats.resolvedTickets + stats.closedTickets) / stats.totalTickets) * 100)}%</span>
-            </div>
-            <div className="overview-item">
-              <span className="overview-label">Open Tickets</span>
-              <span className="overview-value" style={{ color: '#ef4444' }}>{stats.openTickets}</span>
-            </div>
-            <div className="overview-item">
-              <span className="overview-label">High Priority Issues</span>
-              <span className="overview-value" style={{ color: '#ef4444' }}>{stats.highPriorityTickets}</span>
-            </div>
+            <div className="overview-item"><span className="overview-label">Resolution Rate</span><span className="overview-value">{currentStats.totalTickets === 0 ? 0 : Math.round(((currentStats.resolvedTickets + currentStats.closedTickets) / currentStats.totalTickets) * 100)}%</span></div>
+            <div className="overview-item"><span className="overview-label">Open Tickets</span><span className="overview-value" style={{ color: '#ef4444' }}>{currentStats.openTickets}</span></div>
+            <div className="overview-item"><span className="overview-label">High Priority Issues</span><span className="overview-value" style={{ color: '#ef4444' }}>{currentStats.highPriorityTickets}</span></div>
           </div>
         </div>
       </div>
@@ -591,59 +706,13 @@ function Dashboard({ addToast, userRole, userId }) {
       <div className="priority-section">
         <h3>⚠️ Priority Distribution</h3>
         <div className="priority-bars">
-          <div className="priority-bar-item">
-            <span>High</span>
-            <div className="bar-container">
-              <div className="bar high-bar" style={{ width: `${(stats.highPriorityTickets / stats.totalTickets) * 100 || 0}%` }}>
-                {stats.highPriorityTickets}
-              </div>
-            </div>
-          </div>
-          <div className="priority-bar-item">
-            <span>Medium</span>
-            <div className="bar-container">
-              <div className="bar medium-bar" style={{ width: `${(stats.mediumPriorityTickets / stats.totalTickets) * 100 || 0}%` }}>
-                {stats.mediumPriorityTickets}
-              </div>
-            </div>
-          </div>
-          <div className="priority-bar-item">
-            <span>Low</span>
-            <div className="bar-container">
-              <div className="bar low-bar" style={{ width: `${(stats.lowPriorityTickets / stats.totalTickets) * 100 || 0}%` }}>
-                {stats.lowPriorityTickets}
-              </div>
-            </div>
-          </div>
+          <div className="priority-bar-item"><span>High</span><div className="bar-container"><div className="bar high-bar" style={{ width: `${(currentStats.highPriorityTickets / currentStats.totalTickets) * 100 || 0}%` }}>{currentStats.highPriorityTickets}</div></div></div>
+          <div className="priority-bar-item"><span>Medium</span><div className="bar-container"><div className="bar medium-bar" style={{ width: `${(currentStats.mediumPriorityTickets / currentStats.totalTickets) * 100 || 0}%` }}>{currentStats.mediumPriorityTickets}</div></div></div>
+          <div className="priority-bar-item"><span>Low</span><div className="bar-container"><div className="bar low-bar" style={{ width: `${(currentStats.lowPriorityTickets / currentStats.totalTickets) * 100 || 0}%` }}>{currentStats.lowPriorityTickets}</div></div></div>
         </div>
       </div>
       
-      <div className="insight-card">
-        <h3>💡 Admin Insight</h3>
-        <p>System health: {stats.openTickets} open tickets. High priority issues: {stats.highPriorityTickets}. Overall resolution rate: {stats.totalTickets === 0 ? 0 : Math.round(((stats.resolvedTickets + stats.closedTickets) / stats.totalTickets) * 100)}%</p>
-      </div>
-    </div>
-  )
-}
-
-function TicketDetailModal({ ticket, onClose }) {
-  if (!ticket) return null
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header"><h3>Ticket Details</h3><button className="modal-close" onClick={onClose}>×</button></div>
-        <div className="modal-body">
-          <p><strong>Resource:</strong> {ticket.resourceName}</p>
-          <p><strong>Category:</strong> {ticket.category}</p>
-          <p><strong>Description:</strong> {ticket.description}</p>
-          <p><strong>Priority:</strong> {ticket.priority}</p>
-          <p><strong>Status:</strong> {ticket.status}</p>
-          <p><strong>Contact:</strong> {ticket.preferredContact || 'N/A'}</p>
-          <p><strong>Created:</strong> {ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : 'N/A'}</p>
-          <p><strong>Assigned To:</strong> {ticket.assignedTechnician || 'Not Assigned'}</p>
-        </div>
-        <div className="modal-footer"><button onClick={onClose}>Close</button></div>
-      </div>
+      <div className="insight-card"><h3>💡 Admin Insight</h3><p>System health: {currentStats.openTickets} open tickets. High priority issues: {currentStats.highPriorityTickets}. Overall resolution rate: {currentStats.totalTickets === 0 ? 0 : Math.round(((currentStats.resolvedTickets + currentStats.closedTickets) / currentStats.totalTickets) * 100)}%</p></div>
     </div>
   )
 }
