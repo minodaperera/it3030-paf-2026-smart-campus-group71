@@ -1,19 +1,19 @@
 /* Base Variables */
 :root {
-  --app-bg: #2d325a;
+  --app-bg: #f8fafc;
   --card-bg: #ffffff;
   --text-main: #1e293b;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
-  --primary-color: #3b4274;
-  --primary-hover: #2d325a;
-  --accent-yellow: #fcd34d;
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --accent-yellow: #ffffff;
   --danger: #ef4444;
   --danger-hover: #dc2626;
   --success: #10b981;
   --warning: #f59e0b;
-  --radius-lg: 20px;
-  --radius: 12px;
+  --radius-lg: 12px;
+  --radius: 8px;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -37,13 +37,12 @@ body {
 
 .top-navbar {
   background-color: var(--card-bg);
-  border-radius: var(--radius-lg);
-  margin: 0 2.5rem;
+  border-bottom: 1px solid var(--border-color);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .navbar-brand-container {
@@ -73,13 +72,12 @@ body {
 /* Tab Bar */
 .tab-bar {
   background-color: var(--card-bg);
-  border-radius: var(--radius-lg);
-  margin: 1.5rem 2.5rem;
-  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem 2rem;
   display: flex;
   gap: 1rem;
-  box-shadow: var(--shadow-md);
   align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .tab-item {
@@ -103,7 +101,7 @@ body {
 
 .tab-item.active {
   background-color: var(--primary-color);
-  color: var(--accent-yellow);
+  color: white;
 }
 
 .tab-badge {
@@ -117,11 +115,12 @@ body {
 
 /* Main Content Card */
 .main-content {
-  background-color: var(--card-bg);
-  border-radius: var(--radius-lg);
-  margin: 0 2.5rem 2rem;
-  padding: 2.5rem;
-  box-shadow: var(--shadow-md);
+  background-color: transparent;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 2rem;
+  width: 100%;
+  box-sizing: border-box;
   flex: 1;
 }
 
@@ -147,9 +146,8 @@ body {
   border-radius: var(--radius);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  background-color: #fcfcfc;
+  background-color: var(--card-bg);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s;
 }
 
 .inner-card:hover {

@@ -3,7 +3,7 @@ import { useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotificationBell from './components/NotificationBell';
 import Login from './pages/Login';
-import { Moon, LayoutDashboard, Bell, User as UserIcon, PlusCircle, RefreshCw } from 'lucide-react';
+import { User as UserIcon } from 'lucide-react';
 import './App.css';
 
 const Dashboard = () => {
@@ -18,7 +18,6 @@ const Dashboard = () => {
           <span className="navbar-subtitle">Auth & Notifications Module</span>
         </div>
         <div className="navbar-actions">
-          <Moon size={20} color="var(--text-muted)" style={{ cursor: 'pointer' }} />
           <NotificationBell />
           <div className="user-profile-display">
             <span className="user-name">{user.name}</span>
@@ -35,15 +34,12 @@ const Dashboard = () => {
       {/* Tab Menu */}
       <nav className="tab-bar">
         <div className="tab-item active">
-          <LayoutDashboard size={18} />
           Dashboard
         </div>
         <div className="tab-item">
-          <Bell size={18} />
           Notifications
         </div>
         <div className="tab-item">
-          <UserIcon size={18} />
           Profile
         </div>
       </nav>
@@ -57,7 +53,7 @@ const Dashboard = () => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
           
           <div className="inner-card">
-            <h4 className="inner-card-title"><UserIcon size={18}/> User Overview</h4>
+            <h4 className="inner-card-title">User Overview</h4>
             <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Welcome back to the secure dashboard.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.9rem' }}>
               <div><strong>Name:</strong> {user.name}</div>
@@ -76,7 +72,7 @@ const Dashboard = () => {
           </div>
 
           <div className="inner-card">
-            <h4 className="inner-card-title"><Bell size={18}/> Notifications Preview</h4>
+            <h4 className="inner-card-title">Notifications Preview</h4>
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
               Check the bell icon in the navigation bar to see your latest unread alerts.
             </p>
@@ -84,13 +80,13 @@ const Dashboard = () => {
           </div>
 
           <div className="inner-card">
-            <h4 className="inner-card-title"><PlusCircle size={18}/> Quick Actions</h4>
+            <h4 className="inner-card-title">Quick Actions</h4>
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
               Trigger events to verify the real-time notification system is working.
             </p>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button className="btn btn-primary" onClick={() => alert('Use the Notification Bell drop-down to test actual API calls.')}>Create Test Notification</button>
-              <button className="btn btn-icon" title="Refresh Dashboard"><RefreshCw size={18} /></button>
+              <button className="btn btn-icon" title="Refresh Dashboard">Refresh</button>
             </div>
           </div>
 
