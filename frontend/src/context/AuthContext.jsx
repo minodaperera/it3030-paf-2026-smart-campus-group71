@@ -32,14 +32,26 @@ export const AuthProvider = ({ children }) => {
         }
     }, [token]);
 
-    const login = async (email, name, role = 'USER') => {
+    const login = async (email, password) => {
+        try {
+            const res = await axios.post('http://localhost:8081/api/auth/login', { email, password });
+            setToken(res.data.token);
+            setUser(res.data.user);
+            return true;
+        } catch (error) {
+            console.error("Login failed", error);
+            return false;
+        }
+    };
+
+    const mockLogin = async (email, name, role = 'USER') => {
         try {
             const res = await axios.post('http://localhost:8081/api/auth/mock-login', { email, name, role });
             setToken(res.data.token);
             setUser(res.data.user);
             return true;
         } catch (error) {
-            console.error("Login failed", error);
+            console.error("Mock Login failed", error);
             return false;
         }
     };
@@ -53,6 +65,7 @@ export const AuthProvider = ({ children }) => {
         user,
         token,
         login,
+        mockLogin,
         logout,
         loading
     };
