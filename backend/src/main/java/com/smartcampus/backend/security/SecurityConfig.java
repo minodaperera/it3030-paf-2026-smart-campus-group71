@@ -51,6 +51,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll() // Allow mock login and real oauth callback
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/notifications/**").authenticated()
+                .requestMatchers("/error").permitAll()
                 .anyRequest().authenticated()
             );
 

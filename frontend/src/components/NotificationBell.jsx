@@ -35,6 +35,7 @@ const NotificationBell = () => {
     };
 
     const markAsRead = async (id) => {
+        if (!token) return;
         try {
             await axios.patch(`http://localhost:8081/api/notifications/${id}/read`, {}, getAuthHeaders());
             setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
@@ -44,6 +45,7 @@ const NotificationBell = () => {
     };
 
     const markAllAsRead = async () => {
+        if (!token) return;
         try {
             await axios.patch('http://localhost:8081/api/notifications/read-all', {}, getAuthHeaders());
             setNotifications(notifications.map(n => ({ ...n, read: true })));
@@ -53,6 +55,7 @@ const NotificationBell = () => {
     };
 
     const deleteNotification = async (id) => {
+        if (!token) return;
         try {
             await axios.delete(`http://localhost:8081/api/notifications/${id}`, getAuthHeaders());
             setNotifications(notifications.filter(n => n.id !== id));
@@ -63,6 +66,7 @@ const NotificationBell = () => {
 
     // Helper just for Demo to simulate receiving a notification
     const simulateNotification = async () => {
+        if (!token) return;
         try {
             await axios.post('http://localhost:8081/api/notifications/test-create', {
                 type: 'SYSTEM_UPDATE',
