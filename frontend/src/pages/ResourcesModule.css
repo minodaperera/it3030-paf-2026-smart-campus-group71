@@ -1,0 +1,221 @@
+/* ResourcesModule.css - Strictly scoped to .resources-page */
+
+.resources-page {
+    background-color: #f4f7f6;
+    min-height: calc(100vh - 64px);
+    padding: 2rem;
+    font-family: 'Inter', sans-serif;
+    color: #2c3e50;
+}
+
+.resources-page * {
+    box-sizing: border-box;
+}
+
+/* Common Layout Elements */
+.resources-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.resources-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.resources-subtitle {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+/* Cards */
+.resources-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e1e8ed;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Form Styling */
+.resource-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.resource-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.resource-form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.resource-form-input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.95rem;
+    color: #495057;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.resource-form-input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Buttons */
+.resource-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.resource-btn-primary {
+    background-color: #3498db;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.resource-btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+.resource-btn-secondary {
+    background-color: #f8f9fa;
+    color: #495057;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    border: 1px solid #ced4da;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.resource-btn-secondary:hover {
+    background-color: #e2e6ea;
+}
+
+.resource-btn-danger {
+    background-color: #ffeaea;
+    color: #dc3545;
+    padding: 0.4rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.resource-btn-danger:hover {
+    background-color: #ffcccc;
+}
+
+.resource-btn-edit {
+    background-color: #e3f2fd;
+    color: #0d6efd;
+    padding: 0.4rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.resource-btn-edit:hover {
+    background-color: #bbdefb;
+}
+
+/* Tables */
+.resource-table-wrapper {
+    overflow-x: auto;
+}
+
+.resource-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.resource-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid #e9ecef;
+    text-align: left;
+}
+
+.resource-table td {
+    padding: 1rem 1.5rem;
+    color: #343a40;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.resource-table tr:last-child td {
+    border-bottom: none;
+}
+
+.resource-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Status Badges */
+.resource-status-badge {
+    padding: 0.35rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-block;
+    text-transform: uppercase;
+}
+
+.resource-status-badge.active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.resource-status-badge.inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Utilities */
+.resource-flex {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.resource-empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
