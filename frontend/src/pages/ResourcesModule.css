@@ -94,7 +94,7 @@
     color: #1e3a8a;
     border: 1px solid #c7d2fe;
     border-radius: 12px;
-    padding: 10px 16px;
+    padding: 10px 14px;
     transition: all 0.2s ease;
     cursor: pointer;
     font-weight: 600;
@@ -102,7 +102,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    font-size: 0.85rem;
+    font-size: 14px;
 }
 
 .resources-page .resource-btn-primary:hover,
@@ -121,12 +121,13 @@
 .resource-btn-secondary {
     background-color: #f8f9fa;
     color: #495057;
-    padding: 0.6rem 1.2rem;
+    padding: 10px 14px;
     border-radius: 6px;
     font-weight: 600;
     border: 1px solid #ced4da;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-size: 14px;
 }
 
 .resource-btn-secondary:hover {
@@ -136,11 +137,12 @@
 .resource-btn-danger {
     background-color: #ffeaea;
     color: #dc3545;
-    padding: 0.4rem;
+    padding: 10px 14px;
     border-radius: 6px;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-size: 14px;
 }
 
 .resource-btn-danger:hover {
@@ -150,11 +152,12 @@
 .resource-btn-edit {
     background-color: #e3f2fd;
     color: #0d6efd;
-    padding: 0.4rem;
+    padding: 10px 14px;
     border-radius: 6px;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-size: 14px;
 }
 
 .resource-btn-edit:hover {

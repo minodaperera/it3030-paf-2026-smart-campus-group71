@@ -199,7 +199,7 @@ const EquipmentCatalogue = ({ resources = [] }) => {
           />
         </div>
         
-        <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '2px' }}>
+        <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '2px' }}>
           {["ALL", "IT", "BIOTECH", "ENGINEERING", "BUSINESS"].map(f => (
             <button 
               key={f} 
@@ -212,7 +212,7 @@ const EquipmentCatalogue = ({ resources = [] }) => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
         {filteredItems.map((item, idx) => (
           <div key={item.id} className="glass-card animate-slide-up" style={{ 
             display: 'flex', 
