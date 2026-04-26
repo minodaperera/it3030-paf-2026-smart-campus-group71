@@ -100,3 +100,16 @@ CREATE TABLE notifications (
 
 -- Index to quickly fetch unread notifications per user
 CREATE INDEX idx_notifications_user_unread ON notifications(user_id, is_read);
+
+-- ============================================
+-- 8. SEED DATA (Demo Resources)
+-- ============================================
+INSERT INTO resources (name, type, capacity, location, status, availability_windows) VALUES
+('Computing Lab 1', 'LAB', 30, 'Block A', 'ACTIVE', '{"mon":"08:00-18:00","tue":"08:00-18:00","wed":"08:00-18:00","thu":"08:00-18:00","fri":"08:00-18:00"}'),
+('Computing Lab 2', 'LAB', 25, 'Block A', 'ACTIVE', '{"mon":"08:00-18:00","tue":"08:00-18:00","wed":"08:00-18:00","thu":"08:00-18:00","fri":"08:00-18:00"}'),
+('Lecture Hall A', 'LECTURE_HALL', 100, 'Main Building', 'ACTIVE', '{"mon":"08:00-20:00","tue":"08:00-20:00","wed":"08:00-20:00","thu":"08:00-20:00","fri":"08:00-20:00"}'),
+('Lecture Hall B', 'LECTURE_HALL', 80, 'Main Building', 'ACTIVE', '{"mon":"08:00-20:00","tue":"08:00-20:00","wed":"08:00-20:00","thu":"08:00-20:00","fri":"08:00-20:00"}'),
+('Meeting Room 1', 'MEETING_ROOM', 10, 'Admin Block', 'ACTIVE', '{"mon":"09:00-17:00","tue":"09:00-17:00","wed":"09:00-17:00","thu":"09:00-17:00","fri":"09:00-17:00"}'),
+('Meeting Room 2', 'MEETING_ROOM', 8, 'Admin Block', 'ACTIVE', '{"mon":"09:00-17:00","tue":"09:00-17:00","wed":"09:00-17:00","thu":"09:00-17:00","fri":"09:00-17:00"}'),
+('Auditorium', 'EVENT_HALL', 300, 'Events Center', 'ACTIVE', '{"mon":"08:00-22:00","tue":"08:00-22:00","wed":"08:00-22:00","thu":"08:00-22:00","fri":"08:00-22:00","sat":"08:00-22:00","sun":"08:00-22:00"}')
+ON CONFLICT DO NOTHING;
