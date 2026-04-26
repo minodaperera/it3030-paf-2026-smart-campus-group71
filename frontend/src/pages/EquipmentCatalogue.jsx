@@ -204,19 +204,7 @@ const EquipmentCatalogue = ({ resources = [] }) => {
             <button 
               key={f} 
               onClick={() => setFaculty(f)}
-              style={{
-                padding: '0.6rem 1.25rem',
-                borderRadius: '12px',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: '700',
-                fontSize: '0.85rem',
-                backgroundColor: faculty === f ? 'var(--bg-dark)' : 'white',
-                color: faculty === f ? '#fff' : 'var(--text-muted)',
-                transition: 'var(--transition)',
-                boxShadow: faculty === f ? '0 4px 12px rgba(15, 23, 42, 0.2)' : 'var(--shadow-sm)',
-                border: faculty === f ? 'none' : '1px solid #f1f5f9'
-              }}
+              className={`resource-filter-btn ${faculty === f ? 'active' : ''}`}
             >
               {f}
             </button>
@@ -260,7 +248,7 @@ const EquipmentCatalogue = ({ resources = [] }) => {
               alignItems: 'center' 
             }}>
                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>Units: <strong style={{ color: 'var(--bg-dark)' }}>{item.capacity}</strong></span>
-               <button style={{ color: 'var(--primary)', background: 'none', border: 'none', fontWeight: '800', cursor: 'pointer', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Metadata</button>
+               <button className="resource-card-action-btn">Metadata</button>
             </div>
           </div>
         ))}

@@ -87,23 +87,35 @@
     justify-content: flex-end;
 }
 
-.resource-btn-primary {
-    background-color: #3498db;
-    color: white;
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    font-weight: 600;
-    border: none;
+.resources-page .resource-btn-primary,
+.resources-page .resource-filter-btn,
+.resources-page .resource-card-action-btn {
+    background-color: #e6f0ff;
+    color: #1e3a8a;
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    padding: 10px 16px;
+    transition: all 0.2s ease;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    display: flex;
+    font-weight: 600;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
+    font-size: 0.85rem;
 }
 
-.resource-btn-primary:hover {
-    background-color: #2980b9;
+.resources-page .resource-btn-primary:hover,
+.resources-page .resource-filter-btn:hover,
+.resources-page .resource-card-action-btn:hover {
+    background-color: #dbeafe;
     transform: translateY(-1px);
+}
+
+.resources-page .resource-filter-btn.active {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    border-color: #1e3a8a;
 }
 
 .resource-btn-secondary {
